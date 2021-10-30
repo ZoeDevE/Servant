@@ -36,12 +36,34 @@ export const ContractScreen = () => {
         return (<Title>No contract</Title>)
     }
 
-    var master = (type == 0);
+    var master = (type == 0) || (type == 2);
 
     const [config, setState] = React.useState(contract.config);
     const onChange = (name, value) => {
         setState((prevState) => ({ ...prevState, [name]: value }));
     };
+
+    let configurationRobot;
+    let locked = false;
+    let contractHandler = dataActions;
+    if (type == 2) {
+        configurationRobot = (
+            <View>
+                <Divider style={{ margin: 5 }} />
+                <Text>Configuration options for your robot servant, if any tasks are locked editing is not possible.</Text>
+                <View style={styles.modalRow}>
+                    <Text>Unlock</Text>
+                    <Switch value={config.unlock} onValueChange={() => onChange("unlock", !config.unlock)} />
+                </View>
+            </View>
+        );
+        contract.tasks.forEach(function (item, index) {
+            if (item.locked) {
+                locked = true;
+            }
+        });
+        contractHandler = actions;
+    }
 
     return (
         <View>
@@ -56,16 +78,17 @@ export const ContractScreen = () => {
             <TextInput
                 label="Punishments"
                 value={config.punishments}
-                disabled={!master}
+                disabled={!master || locked}
                 multiline={true}
                 onChangeText={(text) => onChange("punishments", text)}
             />
+            {configurationRobot}
             <View style={styles.buttonRow}>
                 <Button icon="content-save"
                     disabled={!master}
                     color={Colors.green700}
                     style={styles.button}
-                    onPress={() => { contract.config = config; dataActions.saveContractConfig(contractid)}}
+                    onPress={() => { contractHandler.saveContractConfig(contractid, config) }}
                 >Save</Button>
                 <Button icon="delete"
                     disabled={!master}
@@ -96,5 +119,12 @@ const styles = StyleSheet.create({
         flex: 1,
         height: 40,
         margin: 5
+    },
+    modalRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        paddingVertical: 8,
+        paddingHorizontal: 0,
     }
 });

@@ -41,6 +41,31 @@ async function contractsAsync() {
 
 }
 
+async function createContract(inviteCode, name) {
+    try {
+        console.log("Creating contract");
+        const response = await fetch(BaseURL + "contract", {
+            method: "POST",
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                id: "9c167fa8-7094-4b8d-9714-fbebf79297ac",
+                inviteCode: inviteCode,
+                name: name
+            })
+        })
+    } catch (e) {  // saving error 
+        console.log(e);
+        console.log("Error");
+        await new Promise(r => setTimeout(r, 2000));
+        return false;
+    } finally {
+        console.log("Done");
+        return true;
+    }
+}
+
 async function saveContractConfig(contractId, config) {
     try {
         console.log("Loading");
@@ -232,14 +257,16 @@ const actions = {
             setState({ error, loading: false });
         }
     },
-    invalid: () => ({ getState, setState }) => {
-        if (getState().loading) return;
-        setState({ data: null, loading: false });
+    createContract: (inviteCode, name) => async ({getState, setState}) => {
+        await createContract(inviteCode, name);
+        setState({ loading: true });
+        data = await contractsAsync();
+        setState({ data, loading: false });
     },
-    saveContractConfig: (contractid) => async ({ getState, setState }) => {
+    saveContractConfig: (contractid, config) => async ({ getState, setState }) => {
         let data = getState().data
         setState({ data, loading: true });
-        await saveContractConfig(contractid, contract.config);
+        await saveContractConfig(contractid, config);
         data = await contractsAsync();
         setState({ data, loading: false });
     },

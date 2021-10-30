@@ -13,21 +13,22 @@ export const NewTask = (props) => {
     date.setMinutes(0);
     date.setMilliseconds(0);
     date.setSeconds(0);
-    
+
     let initVal = {
-        type:0,
-        name:"",
-        description:"",
-        start:date.getTime(),
-        minDuration:6*(24*60*60*1000),
-        endDuration:7*(24*60*60*1000),
-        goal:0,
-        performed:0,
-        active:false,
-        goalVisible:true,
-        timeVisible:true,
-        globalPunish:true,
-        punishments:""
+        type: 0,
+        name: "",
+        description: "",
+        start: date.getTime(),
+        minDuration: 6 * (24 * 60 * 60 * 1000),
+        endDuration: 7 * (24 * 60 * 60 * 1000),
+        goal: 0,
+        performed: 0,
+        active: false,
+        goalVisible: true,
+        timeVisible: true,
+        globalPunish: true,
+        punishments: "",
+        startTime: 0
     };
     const [task, setTask] = React.useState(initVal);
 
@@ -38,36 +39,36 @@ export const NewTask = (props) => {
     const [state, actions] = useDataStore();
 
     let goaltarget;
-    if(task.type == 0) {
+    if (task.type == 0) {
         goaltarget = (<View style={styles.modalRow}>
-                <Text>Goal (m)</Text>
-                <InputSpinner
-                    style={styles.spinner}
-                    max={1000}
-                    min={1}
-                    step={1}
-                    skin="clean"
-                    height={40}
-                    width={120}
-                    value={task.goal/(60*1000)}
-                    onChange={(num) => { onChange("goal", num*60*1000); }}
-                />
-            </View>);
+            <Text>Goal (m)</Text>
+            <InputSpinner
+                style={styles.spinner}
+                max={1000}
+                min={0}
+                step={1}
+                skin="clean"
+                height={40}
+                width={120}
+                value={task.goal / (60 * 1000)}
+                onChange={(num) => { onChange("goal", num * 60 * 1000); }}
+            />
+        </View>);
     } else {
         goaltarget = (<View style={styles.modalRow}>
-                <Text>Goal</Text>
-                <InputSpinner
-                    style={styles.spinner}
-                    max={1000}
-                    min={1}
-                    step={1}
-                    skin="clean"
-                    height={40}
-                    width={120}
-                    value={task.goal}
-                    onChange={(num) => { onChange("goal", num); }}
-                />
-            </View>);
+            <Text>Goal</Text>
+            <InputSpinner
+                style={styles.spinner}
+                max={1000}
+                min={0}
+                step={1}
+                skin="clean"
+                height={40}
+                width={120}
+                value={task.goal}
+                onChange={(num) => { onChange("goal", num); }}
+            />
+        </View>);
     }
 
     return (
@@ -118,8 +119,8 @@ export const NewTask = (props) => {
                     skin="clean"
                     height={40}
                     width={120}
-                    value={task.minDuration/(24*60*60*1000)}
-                    onChange={(num) => { onChange("minDuration", num*24*60*60*1000); }}
+                    value={task.minDuration / (24 * 60 * 60 * 1000)}
+                    onChange={(num) => { onChange("minDuration", num * 24 * 60 * 60 * 1000); }}
                 />
             </View>
 
@@ -133,8 +134,8 @@ export const NewTask = (props) => {
                     skin="clean"
                     height={40}
                     width={120}
-                    value={task.endDuration/(24*60*60*1000)}
-                    onChange={(num) => { onChange("endDuration", num*24*60*60*1000); }}
+                    value={task.endDuration / (24 * 60 * 60 * 1000)}
+                    onChange={(num) => { onChange("endDuration", num * 24 * 60 * 60 * 1000); }}
                 />
             </View>
             <View style={styles.modalRow}>

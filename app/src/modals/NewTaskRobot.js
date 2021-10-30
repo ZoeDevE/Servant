@@ -2,19 +2,75 @@ import React from 'react';
 import { StyleSheet, View } from 'react-native';
 import { Colors, Title, Divider, Switch, TextInput, Button, Text } from 'react-native-paper';
 import InputSpinner from "react-native-input-spinner";
-import { DataStore } from "../data/dataprovider";
+import { SettingsStore } from '../data/configprovider';
 import { createHook } from 'react-sweet-state';
+import uuid from 'react-native-uuid';
 
-const useDataStore = createHook(DataStore);
+const useDataStore = createHook(SettingsStore);
 
-export const EditTask = (props) => {
-    const [task, setTask] = React.useState(props.task);
+function getRandomInt(min, max) {
+    return Math.floor(Math.random() * (max-min)) + min;
+}
+
+function setVerifyTime(task) {
+    let taskrw = {...task};
+    let date = new Date()
+    date.setHours(0);
+    date.setMinutes(0);
+    date.setMilliseconds(0);
+    date.setSeconds(0);
+
+
+    taskrw.start = date.getTime();
+    taskrw.verifyTime = date.getTime()+getRandomInt(taskrw.minDuration, taskrw.endDuration);
+
+    return taskrw
+}
+
+
+export const NewTaskRobot = (props) => {
+    let date = new Date()
+    date.setHours(0);
+    date.setMinutes(0);
+    date.setMilliseconds(0);
+    date.setSeconds(0);
+
+    let initVal = {
+        _id: uuid.v4(),
+        type: 0,
+        name: "",
+        description: "",
+        start: date.getTime(),
+        minDuration: 6 * (24 * 60 * 60 * 1000),
+        endDuration: 7 * (24 * 60 * 60 * 1000),
+        goal: 0,
+        performed: 0,
+        active: false,
+        goalVisible: true,
+        timeVisible: true,
+        globalPunish: true,
+        punishments: "",
+        locked: false,
+        startTime: 0,
+        verifyTime: 0
+    };
+    const [task, setTask] = React.useState(initVal);
 
     const onChange = (name, value) => {
         setTask((prevState) => ({ ...prevState, [name]: value }));
     };
 
     const [state, actions] = useDataStore();
+    React.useEffect(
+        () => { if (!state.data) actions.fetch(); },
+        [state, actions],
+    );
+
+    if (!state.data) {
+        return (
+            <ActivityIndicator />
+        )
+    }
 
     let goaltarget;
     if (task.type == 0) {
@@ -51,8 +107,16 @@ export const EditTask = (props) => {
 
     return (
         <View style={styles.modal}>
-            <Title>{task.name}</Title>
+            <Title>New Task</Title>
             <Divider />
+            <TextInput
+                label="Name"
+                value={task.name}
+                disabled={false}
+                style={styles.modalDescription}
+                multiline={true}
+                onChangeText={text => onChange("name", text)}
+            />
             <TextInput
                 label="Description"
                 value={task.description}
@@ -63,6 +127,10 @@ export const EditTask = (props) => {
             />
 
 
+            <View style={styles.modalRow}>
+                <Text>Timed task?</Text>
+                <Switch value={task.type ? false : true} onValueChange={() => onChange("type", !task.type)} />
+            </View>
             <View style={styles.modalRow}>
                 <Text>Progress visible</Text>
                 <Switch value={task.goalVisible} onValueChange={() => onChange("goalVisible", !task.goalVisible)} />
@@ -117,9 +185,12 @@ export const EditTask = (props) => {
                 onChangeText={text => onChange("punishments", text)}
             />
             <Divider />
+            <View style={styles.modalRow}>
+                <Text>Lock</Text>
+                <Switch value={task.locked} onValueChange={() => onChange("locked", !task.locked)} />
+            </View>
             <View style={styles.buttonRow}>
-                <Button icon="content-save" color={Colors.green700} style={styles.modalButton} onPress={() => { actions.saveTask(props.contract._id, task); props.hide() }}>Save</Button>
-                <Button icon="delete" color={Colors.red700} style={styles.modalButton} onPress={() => { actions.deleteTask(props.contract._id, task); props.hide() }}>Delete</Button>
+                <Button icon="content-save" color={Colors.green700} style={styles.modalButton} onPress={() => { actions.createTask(setVerifyTime(task)); props.hide() }}>Save</Button>
                 <Button icon="cancel" color={Colors.orange700} style={styles.modalButton} onPress={props.hide}>Cancel</Button>
             </View>
         </View>

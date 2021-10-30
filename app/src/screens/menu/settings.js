@@ -32,6 +32,7 @@ export const SettingsScreen = () => {
     const selectContract = (contract) => {
         setSelectedContract(contract);
         actions.saveContract(contract);
+        dataActions.refresh();
     }
 
     const [selectedContract, setSelectedContract] = useState(state.data.activeContract);
@@ -39,7 +40,7 @@ export const SettingsScreen = () => {
     var master = dataState.data.master.map(contract => (<Picker.Item key={contract._id} label={"Master - " + contract.config.name} value={contract._id} />));
     var servant = dataState.data.servant.map(contract => (<Picker.Item key={contract._id} label={"servant - " + contract.config.name} value={contract._id} />));
     var robot;
-    if (dataState.data.robotContract) {
+    if (state.data.robotContract) {
         robot = (<Picker.Item key="robot" label="Robot servant" value="robot" />)
     }
     

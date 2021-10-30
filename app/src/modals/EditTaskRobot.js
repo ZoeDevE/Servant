@@ -2,12 +2,12 @@ import React from 'react';
 import { StyleSheet, View } from 'react-native';
 import { Colors, Title, Divider, Switch, TextInput, Button, Text } from 'react-native-paper';
 import InputSpinner from "react-native-input-spinner";
-import { DataStore } from "../data/dataprovider";
+import { SettingsStore } from "../data/configprovider";
 import { createHook } from 'react-sweet-state';
 
-const useDataStore = createHook(DataStore);
+const useDataStore = createHook(SettingsStore);
 
-export const EditTask = (props) => {
+export const EditTaskRobot = (props) => {
     const [task, setTask] = React.useState(props.task);
 
     const onChange = (name, value) => {
@@ -15,6 +15,16 @@ export const EditTask = (props) => {
     };
 
     const [state, actions] = useDataStore();
+    React.useEffect(
+        () => { if (!state.data) actions.fetch(); },
+        [state, actions],
+    );
+
+    if (!state.data) {
+        return (
+            <ActivityIndicator />
+        )
+    }
 
     let goaltarget;
     if (task.type == 0) {
@@ -28,6 +38,7 @@ export const EditTask = (props) => {
                 skin="clean"
                 height={40}
                 width={120}
+                disabled={task.locked}
                 value={task.goal / (60 * 1000)}
                 onChange={(num) => { onChange("goal", num * 60 * 1000); }}
             />
@@ -43,6 +54,7 @@ export const EditTask = (props) => {
                 skin="clean"
                 height={40}
                 width={120}
+                disabled={task.locked}
                 value={task.goal}
                 onChange={(num) => { onChange("goal", num); }}
             />
@@ -59,20 +71,21 @@ export const EditTask = (props) => {
                 disabled={false}
                 style={styles.modalDescription}
                 multiline={true}
+                disabled={task.locked}
                 onChangeText={text => onChange("description", text)}
             />
 
 
             <View style={styles.modalRow}>
                 <Text>Progress visible</Text>
-                <Switch value={task.goalVisible} onValueChange={() => onChange("goalVisible", !task.goalVisible)} />
+                <Switch value={task.goalVisible} disabled={task.locked} onValueChange={() => onChange("goalVisible", !task.goalVisible)} />
             </View>
 
             {goaltarget}
 
             <View style={styles.modalRow}>
                 <Text>Time visible</Text>
-                <Switch value={task.timeVisible} onValueChange={() => onChange("timeVisible", !task.timeVisible)} />
+                <Switch value={task.timeVisible} disabled={task.locked} onValueChange={() => onChange("timeVisible", !task.timeVisible)} />
             </View>
 
             <View style={styles.modalRow}>
@@ -85,6 +98,7 @@ export const EditTask = (props) => {
                     skin="clean"
                     height={40}
                     width={120}
+                    disabled={task.locked}
                     value={task.minDuration / (24 * 60 * 60 * 1000)}
                     onChange={(num) => { onChange("minDuration", num * 24 * 60 * 60 * 1000); }}
                 />
@@ -100,13 +114,14 @@ export const EditTask = (props) => {
                     skin="clean"
                     height={40}
                     width={120}
+                    disabled={task.locked}
                     value={task.endDuration / (24 * 60 * 60 * 1000)}
                     onChange={(num) => { onChange("endDuration", num * 24 * 60 * 60 * 1000); }}
                 />
             </View>
             <View style={styles.modalRow}>
                 <Text>Use global punishments</Text>
-                <Switch value={task.globalPunish} onValueChange={() => onChange("globalPunish", !task.globalPunish)} />
+                <Switch value={task.globalPunish} disabled={task.locked} onValueChange={() => onChange("globalPunish", !task.globalPunish)} />
             </View>
             <TextInput
                 label="Unique punishments"
@@ -114,12 +129,17 @@ export const EditTask = (props) => {
                 disabled={false}
                 style={styles.modalPunish}
                 multiline={true}
+                disabled={task.locked}
                 onChangeText={text => onChange("punishments", text)}
             />
+            <View style={styles.modalRow}>
+                <Text>Lock</Text>
+                <Switch value={task.locked} disabled={task.locked} onValueChange={() => onChange("locked", !task.locked)} />
+            </View>
             <Divider />
             <View style={styles.buttonRow}>
-                <Button icon="content-save" color={Colors.green700} style={styles.modalButton} onPress={() => { actions.saveTask(props.contract._id, task); props.hide() }}>Save</Button>
-                <Button icon="delete" color={Colors.red700} style={styles.modalButton} onPress={() => { actions.deleteTask(props.contract._id, task); props.hide() }}>Delete</Button>
+                <Button icon="content-save" color={Colors.green700} style={styles.modalButton} onPress={() => { actions.saveTask(task); props.hide() }}>Save</Button>
+                <Button icon="delete" disabled={task.locked} color={Colors.red700} style={styles.modalButton} onPress={() => { actions.deleteTask(task); props.hide() }}>Delete</Button>
                 <Button icon="cancel" color={Colors.orange700} style={styles.modalButton} onPress={props.hide}>Cancel</Button>
             </View>
         </View>

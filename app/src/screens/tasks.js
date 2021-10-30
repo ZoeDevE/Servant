@@ -8,6 +8,9 @@ import { SettingsStore } from "../data/configprovider";
 import getContract from '../data/contracthelper';
 import { EditTask } from '../modals/EditTask';
 import { NewTask } from '../modals/NewTask';
+import { EditTaskRobot } from '../modals/EditTaskRobot';
+import { NewTaskRobot } from '../modals/NewTaskRobot';
+import checkTask from '../data/robottask';
 
 const useDataStore = createHook(DataStore);
 const useConfigStore = createHook(SettingsStore);
@@ -70,7 +73,7 @@ const TaskCard = (props) => {
         if (props.task.startTime == 0) {
             button = <IconButton
                 icon="play"
-                onPress={() => { dataActions.startTask(props.contract._id, props.task)}}
+                onPress={() => { dataActions.startTask(props.contract._id, props.task) }}
                 size={50}
                 color={Colors.green700}
                 style={styles.button}
@@ -78,18 +81,18 @@ const TaskCard = (props) => {
             />
         } else {
             button = <IconButton
-            icon="stop"
-            onPress={() => { dataActions.stopTask(props.contract._id, props.task)}}
-            size={50}
-            color={Colors.green700}
-            style={styles.button}
-            disabled={!buttonPressable}
-        />
+                icon="stop"
+                onPress={() => { dataActions.stopTask(props.contract._id, props.task) }}
+                size={50}
+                color={Colors.green700}
+                style={styles.button}
+                disabled={!buttonPressable}
+            />
         }
     } else {
         button = <IconButton
             icon="check-bold"
-            onPress={() => { dataActions.performTask(props.contract._id, props.task)}}
+            onPress={() => { dataActions.performTask(props.contract._id, props.task) }}
             size={50}
             color={Colors.yellow700}
             style={styles.button}
@@ -97,13 +100,142 @@ const TaskCard = (props) => {
         />
     }
 
+    let edittask;
+    if (props.robot) {
+        edittask = (<EditTaskRobot {...props} hide={hideModal} />);
+    } else {
+        edittask = (<EditTask {...props} hide={hideModal} />);
+    }
+
+
     return (
         <TouchableOpacity style={styles.card}
             onPress={showModal}
         >
             <Portal>
                 <Modal visible={visible} onDismiss={hideModal} contentContainerStyle={containerStyle}>
-                    <EditTask {...props} hide={hideModal} />
+                    {edittask}
+                </Modal>
+            </Portal>
+            <Text style={styles.cardTitle}>{name}</Text>
+            <View style={[styles.container, {
+                // Try setting `flexDirection` to `"row"`.
+                flexDirection: "row"
+            }]}>
+                <View style={{ flex: 4, padding: 5 }}>
+                    <Text>Progress</Text>
+                    <ProgressBar progress={progress} color={progressColor} style={{ marginBottom: 10 }} />
+                    <Text>Time left</Text>
+                    <ProgressBar progress={timeProgress} color={timeProgressColor} />
+                </View>
+                <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+                    {button}
+                </View>
+            </View>
+        </TouchableOpacity >
+    );
+}
+
+const TaskCardRobot = (props) => {
+    let button;
+    let progress = 0;
+    let progressColor = Colors.red800;
+    let timeProgress = 0;
+    let timeProgressColor = Colors.green400;
+    let buttonPressable = false;
+    let name = "Unknown";
+
+    const [visible, setVisible] = React.useState(false);
+
+    const showModal = () => setVisible(true);
+    const hideModal = () => setVisible(false);
+    const containerStyle = { backgroundColor: 'white', padding: 20 };
+    const [data, actions] = useConfigStore();
+
+    if (props.task) {
+        name = props.task.name;
+    }
+
+    if (props.task) {
+        if (props.task.goalVisible) {
+            progress = props.task.performed / props.task.goal;
+            if (progress < 0.5) {
+                progressColor = Colors.red800;
+            } else if (progress < 1.0) {
+                progressColor = Colors.yellow800;
+            } else {
+                progressColor = Colors.green400;
+                progress = 1.0;
+            }
+        } else {
+            progress = 0.0
+            progressColor = Colors.grey500;
+        }
+
+        timeProgress = ((Date.now() - props.task.start)) / props.task.endDuration;
+        if (props.task.timeVisible) {
+            if (timeProgress < 0.5) {
+                timeProgressColor = Colors.green400;
+                buttonPressable = true;
+            } else if (timeProgress < 1.0) {
+                timeProgressColor = Colors.yellow800;
+                buttonPressable = true;
+            } else {
+                timeProgressColor = Colors.red800;
+                timeProgress = 1.0;
+            }
+        } else {
+            timeProgress = 0.0
+            timeProgressColor = Colors.grey500;
+        }
+    }
+
+    if (props.task && props.task.type == 0) {
+        if (props.task.startTime == 0) {
+            button = <IconButton
+                icon="play"
+                onPress={() => { actions.startTask(props.task) }}
+                size={50}
+                color={Colors.green700}
+                style={styles.button}
+                disabled={!buttonPressable}
+            />
+        } else {
+            button = <IconButton
+                icon="stop"
+                onPress={() => { actions.stopTask(props.task) }}
+                size={50}
+                color={Colors.green700}
+                style={styles.button}
+                disabled={!buttonPressable}
+            />
+        }
+    } else {
+        button = <IconButton
+            icon="check-bold"
+            onPress={() => { actions.performTask(props.task) }}
+            size={50}
+            color={Colors.yellow700}
+            style={styles.button}
+            disabled={!buttonPressable}
+        />
+    }
+
+    let edittask;
+    if (props.robot) {
+        edittask = (<EditTaskRobot {...props} hide={hideModal} />);
+    } else {
+        edittask = (<EditTask {...props} hide={hideModal} />);
+    }
+
+
+    return (
+        <TouchableOpacity style={styles.card}
+            onPress={showModal}
+        >
+            <Portal>
+                <Modal visible={visible} onDismiss={hideModal} contentContainerStyle={containerStyle}>
+                    {edittask}
                 </Modal>
             </Portal>
             <Text style={styles.cardTitle}>{name}</Text>
@@ -156,16 +288,44 @@ export default function Tasks() {
         return (<Title>No contract found</Title>)
     }
 
-    console.log(Date.now())
-    let cards = contract.tasks
-        .filter(task => (Date.now() < (task.start + task.endDuration)))
-        .map(task => (<TaskCard task={task} contract={contract} key={task._id} master={type == 0} />));
+    let fab;
+    if (type == 0 || type == 2) {
+        fab = (<FAB
+            style={styles.fab}
+            large
+            icon="plus"
+            onPress={showModal}
+        />);
+    }
+    let newtask;
+    let cards;
+    if (type == 2) {
+        newtask = (<NewTaskRobot hide={hideModal} contract={contract} />);
+        cards = contract.tasks
+            .filter(task => (Date.now() < (task.start + task.endDuration)))
+            .map(task => (<TaskCardRobot task={task} contract={contract} key={task._id} robot={type == 2} />));
+    } else {
+        newtask = (<NewTask hide={hideModal} contract={contract} />);
+        contract.tasks.forEach(task => {
+            let [changed, punishment] = checkTask(task, contract);
+            if (punishment) {
+                settingsActions.addPunishment(punishment);
+            }
+            if (changed) {
+                settingsActions.saveTask(task);
+            }
+            
+        });
+        cards = contract.tasks
+            .filter(task => (Date.now() < (task.start + task.endDuration)))
+            .map(task => (<TaskCard task={task} contract={contract} key={task._id} master={type == 0} />));
+    }
 
     return (
-        <View style={{flex:1}}>
-             <Portal>
+        <View style={{ flex: 1 }}>
+            <Portal>
                 <Modal visible={visible} onDismiss={hideModal} contentContainerStyle={containerStyle}>
-                    <NewTask hide={hideModal} contract={contract}/>
+                    {newtask}
                 </Modal>
             </Portal>
             <ScrollView contentContainerStyle={{ paddingHorizontal: 0 }}>
@@ -173,12 +333,7 @@ export default function Tasks() {
                     {cards}
                 </View>
             </ScrollView>
-            <FAB
-                style={styles.fab}
-                large
-                icon="plus"
-                onPress={showModal}
-            />
+            {fab}
         </View>
 
     );
