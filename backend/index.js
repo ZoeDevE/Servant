@@ -164,18 +164,8 @@ app.put('/user', async function (req, res) {
   }
 });
 
-app.post('/checkinvite', async function (req, res) {
-  var data = await User.find({ inviteCode: req.body.inviteCode })
-  console.log(data);
-  if (data.length != 0) {
-    res.status(204).send();
-  } else {
-    res.status(400).send();
-  }
-});
-
 app.post('/contract', async function (req, res) {
-  var result = await createContract(req.body.id, req.body.inviteCode);
+  var result = await createContract(req.body.id, req.body.inviteCode, req.body.name);
   if (result) {
     res.status(204).send();
   } else {
@@ -439,7 +429,7 @@ var server = app.listen(8088, function () {
   console.log("Example app listening at http://%s:%s", host, port);
 });
 
-async function createContract(id, inviteCode) {
+async function createContract(id, inviteCode, name) {
   var servant = await User.find({ inviteCode: inviteCode });
   var master = await User.find({ id: id });
 
@@ -449,7 +439,7 @@ async function createContract(id, inviteCode) {
 
   if (master.id == servant.id) return false; //Cant be master and servant
 
-  var contract = new Contract({ master: id, servant: servant.id })
+  var contract = new Contract({ master: id, servant: servant.id, config: {name: name, punishments:""}})
 
   console.log(contract);
 
