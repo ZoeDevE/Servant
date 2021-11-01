@@ -1,6 +1,6 @@
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
-import { Colors, Title, Divider, Switch, TextInput, Button, Text, ActivityIndicator} from 'react-native-paper';
+import { Colors, Title, Divider, Switch, TextInput, Button, Text, ActivityIndicator, Card} from 'react-native-paper';
 import { DataStore } from "../../data/dataprovider";
 import { SettingsStore } from "../../data/configprovider";
 import { createHook } from 'react-sweet-state';
@@ -29,7 +29,7 @@ export const ServantScreen = () => {
     const [text, setText] = React.useState(state.data.inviteCode);
 
     return (
-        <View>
+        <Card style={styles.card}>
             <Title style={{padding:10}}>Become servant</Title>
             <Divider />
             <Text style={{padding:10}}>
@@ -45,6 +45,16 @@ export const ServantScreen = () => {
             />
             <Button icon="content-save" color={Colors.green700} onPress={actions.generateInvite}>Randomize</Button>
             <Button icon="content-copy" color={Colors.green700} onPress={() => {Clipboard.setString(state.data.inviteCode)}}>Copy</Button>
-        </View>
+        </Card>
     );
 }
+
+const styles = StyleSheet.create({
+    card: {
+        marginTop: 7,
+        marginLeft: 7,
+        marginRight: 7,
+        padding: 5,
+        paddingBottom: 15
+    }
+});

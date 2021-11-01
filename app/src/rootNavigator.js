@@ -93,7 +93,6 @@ function Home() {
 function DrawerContent(props) {
   return (
     <DrawerContentScrollView {...props}>
-      {/* <DrawerItemList {...props} /> */}
       <DrawerItem
         label="Become a Master"
         onPress={() => props.navigation.navigate('Become a Master')}
@@ -110,10 +109,6 @@ function DrawerContent(props) {
         label="Settings"
         onPress={() => props.navigation.navigate('Settings')}
       />
-      <DrawerItem
-        label="Help"
-        onPress={() => console.log('https://mywebsite.com/help')}
-      />
     </DrawerContentScrollView>
   );
 }
@@ -129,6 +124,7 @@ function DummyScreen() {
 function MainDrawer() {
   
   const [dataState, dataActions] = useDataStore();
+  const [settingsState, settingsActions] = useConfigStore();
   
   return (
     <Drawer.Navigator drawerContent={(props) => <DrawerContent{...props} />}>
@@ -142,7 +138,7 @@ function MainDrawer() {
             icon="refresh"
             size={30}
             color={Colors.grey500}
-            onPress={dataActions.refresh}
+            onPress={() => {settingsActions.refresh(); dataActions.refresh()}}
             />
           ),
         }}/>
@@ -150,7 +146,7 @@ function MainDrawer() {
   );
 }
 
-export const RootNavigator = () => {
+export const RootNavigator = (props) => {
   return (
     <Stack.Navigator>
       <Stack.Screen

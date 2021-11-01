@@ -1,6 +1,6 @@
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
-import { Colors, Title, Divider, Switch, TextInput, Button, Text } from 'react-native-paper';
+import { Colors, Title, Divider, Switch, TextInput, Button, Text, Card} from 'react-native-paper';
 import { DataStore } from '../../data/dataprovider'
 import { createHook } from 'react-sweet-state';
 
@@ -28,10 +28,10 @@ export const MasterScreen = () => {
     };
 
     return (
-        <View>
-            <Title>Become Master</Title>
+        <Card style={styles.card}>
+            <Title style={{padding:10}}>Become Master</Title>
             <Divider />
-            <Text>
+            <Text style={{padding:10}}>
                 Enter your servants invite code below and press create contract.
             </Text>
             <TextInput
@@ -47,6 +47,16 @@ export const MasterScreen = () => {
                 onChangeText={(text) => {onChange("contract", text)}}
             />
             <Button icon="content-save" color={Colors.green700} onPress={() => {dataActions.createContract(text.invite, text.contract)}}>Create</Button>
-        </View>
+        </Card>
     );
 }
+
+const styles = StyleSheet.create({
+    card: {
+        marginTop: 7,
+        marginLeft: 7,
+        marginRight: 7,
+        padding: 5,
+        paddingBottom: 15
+    }
+});

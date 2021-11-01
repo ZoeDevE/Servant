@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
-import { ScrollView, StyleSheet, View, TouchableOpacity } from 'react-native';
-import { IconButton, Colors, ProgressBar, Modal, Portal, Title, Divider, Switch, TextInput, Button, Text, ActivityIndicator } from 'react-native-paper';
+import { ScrollView, StyleSheet, View } from 'react-native';
+import { IconButton, Colors, ProgressBar, Modal, Portal, Title, Divider, Switch, TextInput, Button, Text, ActivityIndicator, Card } from 'react-native-paper';
 import InputSpinner from "react-native-input-spinner";
 import { DataStore } from "../data/dataprovider";
 import { createHook } from 'react-sweet-state';
@@ -83,7 +83,7 @@ const TaskCard = (props) => {
 
     return (
         <View style={styles.card}>
-            <TouchableOpacity style={styles.cardTouch}
+            <Card style={styles.cardTouch}
                 onPress={showModal}
             >
                 <Portal>
@@ -114,7 +114,7 @@ const TaskCard = (props) => {
                     </View>
 
                 </View>
-            </TouchableOpacity >
+            </Card >
             <Picker
                 style={{ backgroundColor: "white", marginTop: 30 }}
                 selectedValue={punishment}
@@ -175,7 +175,6 @@ const styles = StyleSheet.create({
         marginTop: 7,
         marginLeft: 7,
         marginRight: 7,
-        backgroundColor: '#cfd8dc',
         padding: 5,
         height: 180,
     },
@@ -192,40 +191,5 @@ const styles = StyleSheet.create({
     },
     button: {
         marginTop: 12,
-    },
-    modal: {
-        backgroundColor: 'white',
-        padding: 10,
-        paddingBottom: 5,
-    },
-    modalDescription: {
-        marginTop: 10
-    },
-    modalPunish: {
-        marginTop: 10,
-        marginBottom: 10
-    },
-    spinner: {
-        marginRight: 10,
-    },
-    modalRow: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        paddingVertical: 8,
-        paddingHorizontal: 0,
-    },
-    buttonRow: {
-        flex: 1,
-        marginTop: 30,
-        flexDirection: 'row',
-        alignItems: "center",
-        marginBottom: 5,
-        justifyContent: 'space-between',
-    },
-    modalButton: {
-        flex: 1,
-        height: 40,
-        margin: 5
     }
 });

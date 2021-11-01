@@ -1,25 +1,31 @@
 import React from 'react';
 import {
   Provider as PaperProvider,
-  DefaultTheme,
-  DarkTheme,
+  DarkTheme as PaperDarkTheme
 } from 'react-native-paper';
 
-import { NavigationContainer } from '@react-navigation/native';
+import { NavigationContainer, DarkTheme as NavigationDarkTheme } from '@react-navigation/native';
 import { useColorScheme } from 'react-native-appearance';
 
 import { RootNavigator } from './rootNavigator';
 
+
+const CombinedDarkTheme = {
+  ...PaperDarkTheme,
+  ...NavigationDarkTheme,
+  colors: { ...PaperDarkTheme.colors, ...NavigationDarkTheme.colors },
+};
+
 export const Main = () => {
-  
+
 
   return (
     //<PreferencesContext.Provider value={preferences}>
-    <PaperProvider>
-    <NavigationContainer>
-      <RootNavigator />
-    </NavigationContainer>
-  </PaperProvider>
+    <PaperProvider theme={CombinedDarkTheme}>
+      <NavigationContainer theme={CombinedDarkTheme}>
+        <RootNavigator />
+      </NavigationContainer>
+    </PaperProvider>
     //</PreferencesContext.Provider>
   );
 };

@@ -5,6 +5,8 @@ import uuid from 'react-native-uuid';
 
 const BaseURL = "http://10.0.1.1:8088/";
 
+export var ID;
+
 async function configAsync() {
     try {
         console.log("Loading");
@@ -76,6 +78,9 @@ async function saveConfig(config) {
         });
         const jsonValue = JSON.stringify(config);
         await AsyncStorage.setItem('@config', jsonValue);
+        if (response.status == 404) {
+            await createAcount(config);
+        }
     } catch (e) {
         console.log(e);
         console.log("Error storing");
@@ -93,10 +98,17 @@ const actions = {
         if (getState().loading) return; setState({ loading: true });
         try {
             const data = await configAsync();
+            ID = data.id;
             setState({ data, loading: false });
         } catch (error) {
             setState({ error, loading: false });
         }
+    },
+    refresh: () => async ({ getState, setState }) => {
+        if (getState().loading) return; 
+        data = getState().data;
+        setState({ loading: true });
+        setState({ data, loading: false });
     },
     saveContract: (contract) => async ({ getState, setState }) => {
         if (getState().loading) return;
@@ -213,9 +225,22 @@ const actions = {
         if (getState().loading) return; 
         let data = getState().data;
         setState({data, loading: true})
+        if (!data.robotContract.openPunishments) {
+            data.robotContract.openPunishments = []
+        }
+
         data.robotContract.openPunishments.push(punishment);
         await AsyncStorage.setItem('@config', JSON.stringify(data));
         setState({data, loading: false})
+    },
+    removePunishment: (punishment) => async ({ getState, setState }) => {
+        if (getState().loading) return; 
+        let data = getState().data;
+        setState({data, loading: true});
+        let index = data.robotContract.openPunishments.findIndex((name) => name == punishment);
+        data.robotContract.openPunishments.splice(index, 1);
+        await AsyncStorage.setItem('@config', JSON.stringify(data));
+        setState({data, loading: false});
     }
 }
 export const SettingsStore = createStore({ initialState, actions });

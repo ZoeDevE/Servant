@@ -1,7 +1,6 @@
 import React, { useEffect } from 'react';
-import { ScrollView, StyleSheet, View, TouchableOpacity } from 'react-native';
-import { IconButton, Colors, ProgressBar, Modal, Portal, Title, Divider, Switch, TextInput, Button, Text, ActivityIndicator } from 'react-native-paper';
-import InputSpinner from "react-native-input-spinner";
+import { ScrollView, StyleSheet, View } from 'react-native';
+import { IconButton, Colors, Title, ActivityIndicator, Card } from 'react-native-paper';
 import { DataStore } from "../data/dataprovider";
 import { createHook } from 'react-sweet-state';
 import { SettingsStore } from "../data/configprovider";
@@ -15,20 +14,46 @@ const TaskCard = (props) => {
     const [dataState, dataActions] = useDataStore();
 
     return (
-        <View style={[styles.card, { flexDirection: "row" }]}>
-            <View style={{ flex: 4, padding: 5,  justifyContent: 'center'}}>
-                <Title>{props.punishment}</Title>
+        <Card style={styles.card}>
+            <View style={{ flexDirection: "row" }}>
+                <View style={{ flex: 4, padding: 5, justifyContent: 'center' }}>
+                    <Title>{props.punishment}</Title>
+                </View>
+                <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+                    <IconButton
+                        icon="clipboard-check"
+                        onPress={() => { dataActions.removePunishment(props.contract._id, props.punishment) }}
+                        size={50}
+                        color={Colors.green700}
+                        style={styles.button}
+                    />
+                </View>
             </View>
-            <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-                <IconButton
-                    icon="clipboard-check"
-                    onPress={() => { dataActions.removePunishment(props.contract._id, props.punishment) }}
-                    size={50}
-                    color={Colors.green700}
-                    style={styles.button}
-                />
+        </Card>
+    )
+}
+
+const TaskCardRobot = (props) => {
+
+    const [dataState, dataActions] = useConfigStore();
+
+    return (
+        <Card style={styles.card}>
+            <View style={{ flexDirection: "row" }}>
+                <View style={{ flex: 4, padding: 5, justifyContent: 'center' }}>
+                    <Title>{props.punishment}</Title>
+                </View>
+                <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+                    <IconButton
+                        icon="clipboard-check"
+                        onPress={() => { dataActions.removePunishment(props.contract._id, props.punishment) }}
+                        size={50}
+                        color={Colors.green700}
+                        style={styles.button}
+                    />
+                </View>
             </View>
-        </View>
+        </Card>
     )
 }
 
@@ -62,9 +87,16 @@ export const PunishmentScreen = () => {
 
     let cards;
 
-    if (contract.openPunishments.length > 0) {
-        cards = contract.openPunishments
-            .map((punishment, index) => (<TaskCard contract={contract} punishment={punishment} master={master} key={index}/>));
+    if (contract.openPunishments.length >= 0) {
+        console.log(contract.openPunishments.length)
+        if (type == 2) {
+            cards = contract.openPunishments
+                .map((punishment, index) => (<TaskCardRobot contract={contract} punishment={punishment} master={master} key={index} />));
+            cards = (<TaskCardRobot contract={contract} punishment={"Test punishment"} master={master} key={0} />);
+        } else {
+            cards = contract.openPunishments
+                .map((punishment, index) => (<TaskCard contract={contract} punishment={punishment} master={master} key={index} />));
+        }
     } else {
         cards = (<Title>No punishments left</Title>)
     }
@@ -83,60 +115,10 @@ const styles = StyleSheet.create({
         marginTop: 7,
         marginLeft: 7,
         marginRight: 7,
-        backgroundColor: '#cfd8dc',
         padding: 5,
         height: 80,
     },
-    cardTitle: {
-        fontSize: 30,
-        marginBottom: 10,
-    },
-    container: {
-        flex: 1,
-        padding: 0,
-    },
     button: {
         marginTop: 12,
-    },
-    modal: {
-        backgroundColor: 'white',
-        padding: 10,
-        paddingBottom: 5,
-    },
-    modalDescription: {
-        marginTop: 10
-    },
-    modalPunish: {
-        marginTop: 10,
-        marginBottom: 10
-    },
-    spinner: {
-        marginRight: 10,
-    },
-    modalRow: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        paddingVertical: 8,
-        paddingHorizontal: 0,
-    },
-    buttonRow: {
-        flex: 1,
-        marginTop: 30,
-        flexDirection: 'row',
-        alignItems: "center",
-        marginBottom: 5,
-        justifyContent: 'space-between',
-    },
-    modalButton: {
-        flex: 1,
-        height: 40,
-        margin: 5
-    },
-    fab: {
-        position: 'absolute',
-        margin: 16,
-        right: 0,
-        bottom: 0,
-    },
+    }
 });

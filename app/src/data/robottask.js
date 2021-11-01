@@ -1,15 +1,11 @@
-import React, { useEffect, useState } from 'react';
-import { createStore, createSubscriber, createHook } from 'react-sweet-state';
-import { SettingsStore } from './configprovider';
-
-const useDataStore = createHook(SettingsStore);
-
 function getRandomInt(min, max) {
     return Math.floor(Math.random() * (max-min)) + min;
   }
   
 
 export default function checkTask(task, contract) {
+    console.log(task.verifyTime)
+    console.log(Date.now())
     if (task.verifyTime < Date.now()) {
         
         let date = new Date()
@@ -31,11 +27,15 @@ export default function checkTask(task, contract) {
         }
         
         let punishments = []
-        punishments = punishments.concat(task.punishments.split("\n"))
-        if (task.globalPunish) {
-            punishments = punishments.concat(contract.punishments.split("\n"))
+        if (task.punishments) {
+            punishments = punishments.concat(task.punishments.split("\n"))
         }
-
+        if (task.globalPunish && contract.config.punishments) {
+            punishments = punishments.concat(contract.config.punishments.split("\n"))
+        }
+        console.log(task.punishments)
+        console.log(contract.punishments)
+        console.log(punishments)
         let index = getRandomInt(0, punishments.length);
 
         return [true, punishments[index]];

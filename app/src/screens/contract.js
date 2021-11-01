@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
-import { ScrollView, StyleSheet, View, TouchableOpacity } from 'react-native';
-import { IconButton, Colors, ProgressBar, Modal, Portal, Title, Divider, Switch, TextInput, Button, Text, ActivityIndicator } from 'react-native-paper';
+import { ScrollView, StyleSheet, View } from 'react-native';
+import { IconButton, Colors, ProgressBar, Modal, Portal, Title, Divider, Switch, TextInput, Button, Text, ActivityIndicator, Card } from 'react-native-paper';
 import InputSpinner from "react-native-input-spinner";
 import { DataStore } from "../data/dataprovider";
 import { createHook } from 'react-sweet-state';
@@ -66,7 +66,7 @@ export const ContractScreen = () => {
     }
 
     return (
-        <View>
+        <Card style={styles.card}>
             <Title>Contract: {config.name}</Title>
             <TextInput
                 label="Name"
@@ -102,7 +102,7 @@ export const ContractScreen = () => {
                     onPress={() => setState(contract.config)}
                 >Cancel</Button>
             </View>
-        </View>
+        </Card>
     )
 }
 
@@ -126,5 +126,12 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
         paddingVertical: 8,
         paddingHorizontal: 0,
-    }
+    },
+    card: {
+        marginTop: 7,
+        marginLeft: 7,
+        marginRight: 7,
+        padding: 5,
+        paddingBottom: 15
+    },
 });

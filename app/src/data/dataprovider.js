@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { createStore, createSubscriber, createHook } from 'react-sweet-state';
 import { get } from 'react-native/Libraries/Utilities/PixelRatio';
+import { SettingsStore, ID } from './configprovider';
 
 const initialState = {
     data: null,
@@ -11,9 +12,13 @@ const initialState = {
 
 const BaseURL = "http://10.0.1.1:8088/";
 
+
 async function contractsAsync() {
     try {
         console.log("Loading");
+        while(!ID) {    //Shitty wait function for ID to be set
+            await new Promise(r => setTimeout(r, 100));
+        }
         const response = await fetch(BaseURL + "getcontracts", {
             method: "POST",
             headers: {
@@ -21,7 +26,7 @@ async function contractsAsync() {
                 // 'Content-Type': 'application/x-www-form-urlencoded',
             },
             body: JSON.stringify({
-                id: "9c167fa8-7094-4b8d-9714-fbebf79297ac"
+                id: ID
             })
         })
         data = response.json()
@@ -50,7 +55,7 @@ async function createContract(inviteCode, name) {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                id: "9c167fa8-7094-4b8d-9714-fbebf79297ac",
+                id: ID,
                 inviteCode: inviteCode,
                 name: name
             })
@@ -75,7 +80,7 @@ async function saveContractConfig(contractId, config) {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                id: "9c167fa8-7094-4b8d-9714-fbebf79297ac",
+                id: ID,
                 contractId: contractId,
                 config: config
             })
@@ -100,7 +105,7 @@ async function addPunishment(contractId, punishment) {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                id: "9c167fa8-7094-4b8d-9714-fbebf79297ac",
+                id: ID,
                 contractId: contractId,
                 punishment: punishment
             })
@@ -125,7 +130,7 @@ async function removePunishment(contractId, punishment) {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                id: "9c167fa8-7094-4b8d-9714-fbebf79297ac",
+                id: ID,
                 contractId: contractId,
                 punishment: punishment
             })
@@ -149,7 +154,7 @@ async function saveTask(contractId, task) {
             // 'Content-Type': 'application/x-www-form-urlencoded',
         },
         body: JSON.stringify({
-            id: "9c167fa8-7094-4b8d-9714-fbebf79297ac",
+            id: ID,
             contractId: contractId,
             task: task
         })
@@ -165,7 +170,7 @@ async function createTask(contractId, task) {
             // 'Content-Type': 'application/x-www-form-urlencoded',
         },
         body: JSON.stringify({
-            id: "9c167fa8-7094-4b8d-9714-fbebf79297ac",
+            id: ID,
             contractId: contractId,
             task: task
         })
@@ -181,7 +186,7 @@ async function deleteTask(contractId, task) {
             // 'Content-Type': 'application/x-www-form-urlencoded',
         },
         body: JSON.stringify({
-            id: "9c167fa8-7094-4b8d-9714-fbebf79297ac",
+            id: ID,
             contractId: contractId,
             task: task
         })
@@ -197,7 +202,7 @@ async function startTask(contractId, task) {
             // 'Content-Type': 'application/x-www-form-urlencoded',
         },
         body: JSON.stringify({
-            id: "9c167fa8-7094-4b8d-9714-fbebf79297ac",
+            id: ID,
             contractId: contractId,
             task: { _id: task._id }
         })
@@ -213,7 +218,7 @@ async function performTask(contractId, task) {
             // 'Content-Type': 'application/x-www-form-urlencoded',
         },
         body: JSON.stringify({
-            id: "9c167fa8-7094-4b8d-9714-fbebf79297ac",
+            id: ID,
             contractId: contractId,
             task: { _id: task._id }
         })
@@ -229,13 +234,15 @@ async function stopTask(contractId, task) {
             // 'Content-Type': 'application/x-www-form-urlencoded',
         },
         body: JSON.stringify({
-            id: "9c167fa8-7094-4b8d-9714-fbebf79297ac",
+            id: ID,
             contractId: contractId,
             task: { _id: task._id }
         })
     });
     return response.status == 204;
 }
+
+
 
 const actions = {
     fetch: () => async ({ getState, setState }) => {
@@ -251,6 +258,7 @@ const actions = {
     refresh: () => async ({ getState, setState }) => {
         if (getState().loading) return;
         try {
+            setState({ loading: true });
             const data = await contractsAsync();
             setState({ data, loading: false });
         } catch (error) {

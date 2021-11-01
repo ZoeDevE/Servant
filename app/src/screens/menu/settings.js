@@ -1,18 +1,18 @@
 import React, { useEffect, useState } from 'react';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-
-import { View } from 'react-native';
-import { Text, Title, ActivityIndicator, Divider } from 'react-native-paper'
-import { createStore, createSubscriber, createHook } from 'react-sweet-state';
+import { View, StyleSheet } from 'react-native';
+import { Text, Title, ActivityIndicator, Divider, Card, useTheme } from 'react-native-paper'
+import { createHook } from 'react-sweet-state';
 import { DataStore } from "../../data/dataprovider";
 import { SettingsStore } from "../../data/configprovider";
 import { Picker } from '@react-native-picker/picker';
-import getContract from '../../data/contracthelper';
+
 
 const useConfig = createHook(SettingsStore);
 const useDataStore = createHook(DataStore);
 
-export const SettingsScreen = () => {
+export const SettingsScreen = (props) => {
+    const { colors } = useTheme();
+    console.log(colors);
     const [state, actions] = useConfig();
     useEffect(
         () => { if (!state.data) actions.fetch(); },
@@ -45,7 +45,7 @@ export const SettingsScreen = () => {
     }
     
     return (
-        <View style={{ flex: 1, margin: 20 }}>
+        <Card style={styles.card}>
             <Title>Your id</Title>
             <Text> {state.data.id}</Text>
             <Text> Never share this ID with anyone</Text>
@@ -54,6 +54,8 @@ export const SettingsScreen = () => {
             <Text>Select the contract you want to display in the app</Text>
             <Picker
                 selectedValue={selectedContract}
+                style={{color:colors.text}}
+                dropdownIconColor={colors.accent}
                 onValueChange={(itemValue, itemIndex) =>
                     selectContract(itemValue)
                 }>
@@ -61,6 +63,16 @@ export const SettingsScreen = () => {
                 {servant}
                 {robot}
             </Picker>
-        </View>
+        </Card>
     );
 }
+
+const styles = StyleSheet.create({
+    card: {
+        marginTop: 7,
+        marginLeft: 7,
+        marginRight: 7,
+        padding: 5,
+        paddingBottom: 15
+    }
+});

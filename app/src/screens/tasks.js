@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
-import { ScrollView, StyleSheet, View, TouchableOpacity } from 'react-native';
-import { IconButton, Colors, ProgressBar, Modal, Portal, Title, Divider, Switch, TextInput, Button, Text, ActivityIndicator, FAB } from 'react-native-paper';
+import { ScrollView, StyleSheet, View } from 'react-native';
+import { IconButton, Colors, ProgressBar, Modal, Portal, Title, Divider, Switch, TextInput, Button, Text, ActivityIndicator, FAB, Card} from 'react-native-paper';
 import InputSpinner from "react-native-input-spinner";
 import { DataStore } from "../data/dataprovider";
 import { createHook } from 'react-sweet-state';
@@ -28,7 +28,7 @@ const TaskCard = (props) => {
 
     const showModal = () => setVisible(true);
     const hideModal = () => setVisible(false);
-    const containerStyle = { backgroundColor: 'white', padding: 20 };
+ 
     const [dataState, dataActions] = useDataStore();
 
     if (props.task) {
@@ -109,11 +109,11 @@ const TaskCard = (props) => {
 
 
     return (
-        <TouchableOpacity style={styles.card}
+        <Card style={styles.card}
             onPress={showModal}
         >
             <Portal>
-                <Modal visible={visible} onDismiss={hideModal} contentContainerStyle={containerStyle}>
+                <Modal visible={visible} onDismiss={hideModal} >
                     {edittask}
                 </Modal>
             </Portal>
@@ -132,7 +132,7 @@ const TaskCard = (props) => {
                     {button}
                 </View>
             </View>
-        </TouchableOpacity >
+        </Card >
     );
 }
 
@@ -149,7 +149,6 @@ const TaskCardRobot = (props) => {
 
     const showModal = () => setVisible(true);
     const hideModal = () => setVisible(false);
-    const containerStyle = { backgroundColor: 'white', padding: 20 };
     const [data, actions] = useConfigStore();
 
     if (props.task) {
@@ -230,11 +229,11 @@ const TaskCardRobot = (props) => {
 
 
     return (
-        <TouchableOpacity style={styles.card}
+        <Card style={styles.card}
             onPress={showModal}
         >
             <Portal>
-                <Modal visible={visible} onDismiss={hideModal} contentContainerStyle={containerStyle}>
+                <Modal visible={visible} onDismiss={hideModal} >
                     {edittask}
                 </Modal>
             </Portal>
@@ -253,7 +252,7 @@ const TaskCardRobot = (props) => {
                     {button}
                 </View>
             </View>
-        </TouchableOpacity >
+        </Card >
     );
 }
 
@@ -261,16 +260,19 @@ const TaskCardRobot = (props) => {
 export default function Tasks() {
     const [dataState, dataActions] = useDataStore();
     const [settingsState, settingsActions] = useConfigStore();
-
+    useEffect(
+        () => { if (!settingsState.data) settingsActions.fetch(); },
+        [settingsState, settingsActions],
+    );
+    if (!settingsState.data) {
+        return (<ActivityIndicator size='large' animating={true} color={Colors.red800} style={{ align: "center" }} />);
+    }
     useEffect(
         () => { if (!dataState.data) dataActions.fetch(); },
         [dataState, dataActions],
     );
 
-    useEffect(
-        () => { if (!settingsState.data) settingsActions.fetch(); },
-        [settingsState, settingsActions],
-    );
+    
 
     //Show loading animation while loading data and settings
     if (!dataState.data || !settingsState.data) {
@@ -301,21 +303,22 @@ export default function Tasks() {
     let cards;
     if (type == 2) {
         newtask = (<NewTaskRobot hide={hideModal} contract={contract} />);
-        cards = contract.tasks
-            .filter(task => (Date.now() < (task.start + task.endDuration)))
-            .map(task => (<TaskCardRobot task={task} contract={contract} key={task._id} robot={type == 2} />));
-    } else {
-        newtask = (<NewTask hide={hideModal} contract={contract} />);
         contract.tasks.forEach(task => {
+            //task.verifyTime = task.verifyTime - 200000000;
             let [changed, punishment] = checkTask(task, contract);
+            console.log(changed);
             if (punishment) {
                 settingsActions.addPunishment(punishment);
             }
             if (changed) {
                 settingsActions.saveTask(task);
-            }
-            
+            }            
         });
+        cards = contract.tasks
+            .filter(task => (Date.now() < (task.start + task.endDuration)))
+            .map(task => (<TaskCardRobot task={task} contract={contract} key={task._id} robot={type == 2} />));
+    } else {
+        newtask = (<NewTask hide={hideModal} contract={contract} />);
         cards = contract.tasks
             .filter(task => (Date.now() < (task.start + task.endDuration)))
             .map(task => (<TaskCard task={task} contract={contract} key={task._id} master={type == 0} />));
@@ -344,7 +347,6 @@ const styles = StyleSheet.create({
         marginTop: 7,
         marginLeft: 7,
         marginRight: 7,
-        backgroundColor: '#cfd8dc',
         padding: 5,
         height: 120,
     },
@@ -359,45 +361,10 @@ const styles = StyleSheet.create({
     button: {
         marginTop: 12,
     },
-    modal: {
-        backgroundColor: 'white',
-        padding: 10,
-        paddingBottom: 5,
-    },
-    modalDescription: {
-        marginTop: 10
-    },
-    modalPunish: {
-        marginTop: 10,
-        marginBottom: 10
-    },
-    spinner: {
-        marginRight: 10,
-    },
-    modalRow: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        paddingVertical: 8,
-        paddingHorizontal: 0,
-    },
-    buttonRow: {
-        flex: 1,
-        marginTop: 30,
-        flexDirection: 'row',
-        alignItems: "center",
-        marginBottom: 5,
-        justifyContent: 'space-between',
-    },
-    modalButton: {
-        flex: 1,
-        height: 40,
-        margin: 5
-    },
     fab: {
         position: 'absolute',
         margin: 16,
         right: 0,
         bottom: 0,
-    },
+    }
 });
