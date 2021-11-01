@@ -1,4 +1,4 @@
-package com.app;
+package com.zoedev.servant;
 
 import com.facebook.react.ReactActivity;
 import android.os.Bundle;
