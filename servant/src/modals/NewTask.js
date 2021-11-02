@@ -1,6 +1,6 @@
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
-import { Colors, Title, Divider, Switch, TextInput, Button, Text } from 'react-native-paper';
+import { Colors, Title, Divider, Switch, TextInput, Button, Text, Surface } from 'react-native-paper';
 import InputSpinner from "react-native-input-spinner";
 import { DataStore } from "../data/dataprovider";
 import { createHook } from 'react-sweet-state';
@@ -72,7 +72,7 @@ export const NewTask = (props) => {
     }
 
     return (
-        <Card style={styles.modal}>
+        <Surface style={styles.modal}>
             <Title>New Task</Title>
             <Divider />
             <TextInput
@@ -155,33 +155,11 @@ export const NewTask = (props) => {
                 <Button icon="content-save" color={Colors.green700} style={styles.modalButton} onPress={() => { actions.createTask(props.contract._id, task); props.hide() }}>Save</Button>
                 <Button icon="cancel" color={Colors.orange700} style={styles.modalButton} onPress={props.hide}>Cancel</Button>
             </View>
-        </Card>
+        </Surface>
     );
 }
 
 const styles = StyleSheet.create({
-    card: {
-        marginTop: 7,
-        marginLeft: 7,
-        marginRight: 7,
-        backgroundColor: '#cfd8dc',
-        padding: 5,
-        height: 180,
-    },
-    cardTouch: {
-        height: 80
-    },
-    cardTitle: {
-        fontSize: 30,
-        marginBottom: 10,
-    },
-    container: {
-        flex: 1,
-        padding: 0,
-    },
-    button: {
-        marginTop: 12,
-    },
     modal: {
         padding: 10,
         paddingBottom: 5,

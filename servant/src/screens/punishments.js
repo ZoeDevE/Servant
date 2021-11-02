@@ -86,19 +86,16 @@ export const PunishmentScreen = () => {
     var master = (type == 0);
 
     let cards;
-
-    if (contract.openPunishments.length >= 0) {
+    console.log(contract.openPunishments)
+    if (contract.openPunishments.length > 0) {
         if (type == 2) {
             cards = contract.openPunishments
                 .map((punishment, index) => (<TaskCardRobot contract={contract} punishment={punishment} master={master} key={index} />));
-            cards = (<TaskCardRobot contract={contract} punishment={"Test punishment"} master={master} key={0} />);
         } else {
             cards = contract.openPunishments
                 .map((punishment, index) => (<TaskCard contract={contract} punishment={punishment} master={master} key={index} />));
         }
-    } else {
-        cards = (<Title>No punishments left</Title>)
-    }
+    } 
 
     return (
         <ScrollView contentContainerStyle={{ paddingHorizontal: 0 }}>

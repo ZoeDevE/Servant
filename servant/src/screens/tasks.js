@@ -22,7 +22,7 @@ const TaskCard = (props) => {
     let timeProgress = 0;
     let timeProgressColor = Colors.green400;
     let buttonPressable = false;
-    let name = "Unknown";
+
 
     const [visible, setVisible] = React.useState(false);
 
@@ -31,50 +31,47 @@ const TaskCard = (props) => {
  
     const [dataState, dataActions] = useDataStore();
 
-    if (props.task) {
-        name = props.task.name;
+
+   
+    if (props.task.goalVisible || props.master) {
+        progress = props.task.performed / props.task.goal;
+        if (progress < 0.5) {
+            progressColor = Colors.red800;
+        } else if (progress < 1.0) {
+            progressColor = Colors.yellow800;
+        } else {
+            progressColor = Colors.green400;
+            progress = 1.0;
+        }
+    } else {
+        progress = 0.0
+        progressColor = Colors.grey500;
     }
 
-    if (props.task) {
-        if (props.task.goalVisible || props.master) {
-            progress = props.task.performed / props.task.goal;
-            if (progress < 0.5) {
-                progressColor = Colors.red800;
-            } else if (progress < 1.0) {
-                progressColor = Colors.yellow800;
-            } else {
-                progressColor = Colors.green400;
-                progress = 1.0;
-            }
+    timeProgress = ((Date.now() - props.task.start)) / props.task.endDuration;
+    if (props.task.timeVisible || props.master) {
+        if (timeProgress < 0.5) {
+            timeProgressColor = Colors.green400;
+            buttonPressable = true;
+        } else if (timeProgress < 1.0) {
+            timeProgressColor = Colors.yellow800;
+            buttonPressable = true;
         } else {
-            progress = 0.0
-            progressColor = Colors.grey500;
+            timeProgressColor = Colors.red800;
+            timeProgress = 1.0;
         }
-
-        timeProgress = ((Date.now() - props.task.start)) / props.task.endDuration;
-        if (props.task.timeVisible || props.master) {
-            if (timeProgress < 0.5) {
-                timeProgressColor = Colors.green400;
-                buttonPressable = true;
-            } else if (timeProgress < 1.0) {
-                timeProgressColor = Colors.yellow800;
-                buttonPressable = true;
-            } else {
-                timeProgressColor = Colors.red800;
-                timeProgress = 1.0;
-            }
-        } else {
-            timeProgress = 0.0
-            timeProgressColor = Colors.grey500;
-        }
+    } else {
+        timeProgress = 0.0
+        timeProgressColor = Colors.grey500;
     }
 
-    if (props.task && props.task.type == 0) {
+
+    if (props.task.type == 0) {
         if (props.task.startTime == 0) {
             button = <IconButton
                 icon="play"
                 onPress={() => { dataActions.startTask(props.contract._id, props.task) }}
-                size={50}
+                size={40}
                 color={Colors.green700}
                 style={styles.button}
                 disabled={!buttonPressable}
@@ -83,7 +80,7 @@ const TaskCard = (props) => {
             button = <IconButton
                 icon="stop"
                 onPress={() => { dataActions.stopTask(props.contract._id, props.task) }}
-                size={50}
+                size={40}
                 color={Colors.green700}
                 style={styles.button}
                 disabled={!buttonPressable}
@@ -93,7 +90,7 @@ const TaskCard = (props) => {
         button = <IconButton
             icon="check-bold"
             onPress={() => { dataActions.performTask(props.contract._id, props.task) }}
-            size={50}
+            size={40}
             color={Colors.yellow700}
             style={styles.button}
             disabled={!buttonPressable}
@@ -117,14 +114,14 @@ const TaskCard = (props) => {
                     {edittask}
                 </Modal>
             </Portal>
-            <Text style={styles.cardTitle}>{name}</Text>
+            <Text style={styles.cardTitle}>{props.task.name}</Text>
             <View style={[styles.container, {
                 // Try setting `flexDirection` to `"row"`.
                 flexDirection: "row"
             }]}>
-                <View style={{ flex: 4, padding: 5 }}>
+                <View style={{ flex: 3.5}}>
                     <Text>Progress</Text>
-                    <ProgressBar progress={progress} color={progressColor} style={{ marginBottom: 10 }} />
+                    <ProgressBar progress={progress} color={progressColor} style={styles.progressbar} />
                     <Text>Time left</Text>
                     <ProgressBar progress={timeProgress} color={timeProgressColor} />
                 </View>
@@ -135,127 +132,6 @@ const TaskCard = (props) => {
         </Card >
     );
 }
-
-const TaskCardRobot = (props) => {
-    let button;
-    let progress = 0;
-    let progressColor = Colors.red800;
-    let timeProgress = 0;
-    let timeProgressColor = Colors.green400;
-    let buttonPressable = false;
-    let name = "Unknown";
-
-    const [visible, setVisible] = React.useState(false);
-
-    const showModal = () => setVisible(true);
-    const hideModal = () => setVisible(false);
-    const [data, actions] = useConfigStore();
-
-    if (props.task) {
-        name = props.task.name;
-    }
-
-    if (props.task) {
-        if (props.task.goalVisible) {
-            progress = props.task.performed / props.task.goal;
-            if (progress < 0.5) {
-                progressColor = Colors.red800;
-            } else if (progress < 1.0) {
-                progressColor = Colors.yellow800;
-            } else {
-                progressColor = Colors.green400;
-                progress = 1.0;
-            }
-        } else {
-            progress = 0.0
-            progressColor = Colors.grey500;
-        }
-
-        timeProgress = ((Date.now() - props.task.start)) / props.task.endDuration;
-        if (props.task.timeVisible) {
-            if (timeProgress < 0.5) {
-                timeProgressColor = Colors.green400;
-                buttonPressable = true;
-            } else if (timeProgress < 1.0) {
-                timeProgressColor = Colors.yellow800;
-                buttonPressable = true;
-            } else {
-                timeProgressColor = Colors.red800;
-                timeProgress = 1.0;
-            }
-        } else {
-            timeProgress = 0.0
-            timeProgressColor = Colors.grey500;
-        }
-    }
-
-    if (props.task && props.task.type == 0) {
-        if (props.task.startTime == 0) {
-            button = <IconButton
-                icon="play"
-                onPress={() => { actions.startTask(props.task) }}
-                size={50}
-                color={Colors.green700}
-                style={styles.button}
-                disabled={!buttonPressable}
-            />
-        } else {
-            button = <IconButton
-                icon="stop"
-                onPress={() => { actions.stopTask(props.task) }}
-                size={50}
-                color={Colors.green700}
-                style={styles.button}
-                disabled={!buttonPressable}
-            />
-        }
-    } else {
-        button = <IconButton
-            icon="check-bold"
-            onPress={() => { actions.performTask(props.task) }}
-            size={50}
-            color={Colors.yellow700}
-            style={styles.button}
-            disabled={!buttonPressable}
-        />
-    }
-
-    let edittask;
-    if (props.robot) {
-        edittask = (<EditTaskRobot {...props} hide={hideModal} />);
-    } else {
-        edittask = (<EditTask {...props} hide={hideModal} />);
-    }
-
-
-    return (
-        <Card style={styles.card}
-            onPress={showModal}
-        >
-            <Portal>
-                <Modal visible={visible} onDismiss={hideModal} >
-                    {edittask}
-                </Modal>
-            </Portal>
-            <Text style={styles.cardTitle}>{name}</Text>
-            <View style={[styles.container, {
-                // Try setting `flexDirection` to `"row"`.
-                flexDirection: "row"
-            }]}>
-                <View style={{ flex: 4, padding: 5 }}>
-                    <Text>Progress</Text>
-                    <ProgressBar progress={progress} color={progressColor} style={{ marginBottom: 10 }} />
-                    <Text>Time left</Text>
-                    <ProgressBar progress={timeProgress} color={timeProgressColor} />
-                </View>
-                <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-                    {button}
-                </View>
-            </View>
-        </Card >
-    );
-}
-
 
 export default function Tasks() {
     const [dataState, dataActions] = useDataStore();
@@ -282,7 +158,6 @@ export default function Tasks() {
     const [visible, setVisible] = React.useState(false);
     const showModal = () => setVisible(true);
     const hideModal = () => setVisible(false);
-    const containerStyle = { backgroundColor: 'white', padding: 20 };
 
     let [contract, type, id] = getContract(settingsState, dataState);
 
@@ -316,18 +191,18 @@ export default function Tasks() {
         });
         cards = contract.tasks
             .filter(task => (Date.now() < (task.start + task.endDuration)))
-            .map(task => (<TaskCardRobot task={task} contract={contract} key={task._id} robot={type == 2} />));
+            .map(task => (<TaskCard task={task} contract={contract} key={task._id} master={type == 0} robot={type == 2} />));
     } else {
         newtask = (<NewTask hide={hideModal} contract={contract} />);
         cards = contract.tasks
             .filter(task => (Date.now() < (task.start + task.endDuration)))
-            .map(task => (<TaskCard task={task} contract={contract} key={task._id} master={type == 0} />));
+            .map(task => (<TaskCard task={task} contract={contract} key={task._id} master={type == 0} robot={type == 2}/>));
     }
 
     return (
         <View style={{ flex: 1 }}>
             <Portal>
-                <Modal visible={visible} onDismiss={hideModal} contentContainerStyle={containerStyle}>
+                <Modal visible={visible} onDismiss={hideModal}>
                     {newtask}
                 </Modal>
             </Portal>
@@ -347,20 +222,23 @@ const styles = StyleSheet.create({
         marginTop: 7,
         marginLeft: 7,
         marginRight: 7,
-        padding: 5,
-        height: 120,
+        padding: 5,        
     },
     cardTitle: {
         fontSize: 30,
         marginBottom: 10,
+        marginLeft: 5
     },
     container: {
         flex: 1,
         padding: 0,
     },
     button: {
-        marginTop: 12,
+        marginTop: 0,
     },
+    progressbar: {
+        marginBottom: 10
+    }, 
     fab: {
         position: 'absolute',
         margin: 16,
