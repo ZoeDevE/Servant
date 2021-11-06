@@ -125,7 +125,11 @@ const contractSchema = new mongoose.Schema({
 const Contract = mongoose.model('Contract', contractSchema);
 
 // Replace the uri string with your MongoDB deployment's connection string.
-const uri = "mongodb://localhost:27017";
+
+let uri = "mongodb://localhost:27017";
+if (process.env.URI) {
+   uri = process.env.URI;
+}
 mongoose.connect(uri);
 
 
