@@ -165,6 +165,22 @@ export default function Tasks() {
         return (<Title>No contract found</Title>)
     }
 
+    useEffect(() => {
+        if (type == 2) {
+            contract.tasks.forEach(task => {
+                //task.verifyTime = task.verifyTime - 200000000;
+                let [changed, punishment] = checkTask(task, contract);
+                console.log(changed);
+                if (punishment) {
+                    settingsActions.addPunishment(punishment);
+                }
+                if (changed) {
+                    settingsActions.saveTask(task);
+                }            
+            });
+        }
+    }, [settingsActions]);
+
     let fab;
     if (type == 0 || type == 2) {
         fab = (<FAB
@@ -174,29 +190,16 @@ export default function Tasks() {
             onPress={showModal}
         />);
     }
+    
     let newtask;
-    let cards;
+    let cards = contract.tasks
+    .filter(task => (Date.now() < (task.start + task.endDuration)))
+    .map(task => (<TaskCard task={task} contract={contract} key={task._id} master={type == 0} robot={type == 2} />));
+
     if (type == 2) {
         newtask = (<NewTaskRobot hide={hideModal} contract={contract} />);
-        contract.tasks.forEach(task => {
-            //task.verifyTime = task.verifyTime - 200000000;
-            let [changed, punishment] = checkTask(task, contract);
-            console.log(changed);
-            if (punishment) {
-                settingsActions.addPunishment(punishment);
-            }
-            if (changed) {
-                settingsActions.saveTask(task);
-            }            
-        });
-        cards = contract.tasks
-            .filter(task => (Date.now() < (task.start + task.endDuration)))
-            .map(task => (<TaskCard task={task} contract={contract} key={task._id} master={type == 0} robot={type == 2} />));
     } else {
         newtask = (<NewTask hide={hideModal} contract={contract} />);
-        cards = contract.tasks
-            .filter(task => (Date.now() < (task.start + task.endDuration)))
-            .map(task => (<TaskCard task={task} contract={contract} key={task._id} master={type == 0} robot={type == 2}/>));
     }
 
     return (
