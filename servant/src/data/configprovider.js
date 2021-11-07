@@ -2,8 +2,7 @@ import React, { useEffect, useState } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { createStore, createSubscriber, createHook } from 'react-sweet-state';
 import uuid from 'react-native-uuid';
-
-const BaseURL = "http://10.0.1.1:8088/";
+import { endpoint } from '../../app.json';
 
 export var ID;
 
@@ -27,7 +26,7 @@ async function configAsync() {
 }
 
 async function createAcount(details) {
-    const response = await fetch(BaseURL+"user", {
+    const response = await fetch(endpoint+"user", {
         method: "POST",
         headers: {
             'Content-Type': 'application/json'
@@ -69,7 +68,7 @@ async function generateDefaultConfig() {
 
 async function saveConfig(config) {
     try {
-        const response = await fetch(BaseURL+"user", {
+        const response = await fetch(endpoint+"user", {
             method: "PUT",
             headers: {
                 'Content-Type': 'application/json'

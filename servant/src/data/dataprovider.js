@@ -3,6 +3,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { createStore, createSubscriber, createHook } from 'react-sweet-state';
 import { get } from 'react-native/Libraries/Utilities/PixelRatio';
 import { SettingsStore, ID } from './configprovider';
+import { endpoint } from '../../app.json';
 
 const initialState = {
     data: null,
@@ -10,16 +11,13 @@ const initialState = {
     error: null,
 };
 
-const BaseURL = "http://10.0.1.1:8088/";
-
-
 async function contractsAsync() {
     try {
         console.log("Loading");
         while(!ID) {    //Shitty wait function for ID to be set
             await new Promise(r => setTimeout(r, 100));
         }
-        const response = await fetch(BaseURL + "getcontracts", {
+        const response = await fetch(endpoint + "getcontracts", {
             method: "POST",
             headers: {
                 'Content-Type': 'application/json'
@@ -49,7 +47,7 @@ async function contractsAsync() {
 async function createContract(inviteCode, name) {
     try {
         console.log("Creating contract");
-        const response = await fetch(BaseURL + "contract", {
+        const response = await fetch(endpoint + "contract", {
             method: "POST",
             headers: {
                 'Content-Type': 'application/json'
@@ -74,7 +72,7 @@ async function createContract(inviteCode, name) {
 async function saveContractConfig(contractId, config) {
     try {
         console.log("Loading");
-        const response = await fetch(BaseURL + "contract/config", {
+        const response = await fetch(endpoint + "contract/config", {
             method: "POST",
             headers: {
                 'Content-Type': 'application/json'
@@ -99,7 +97,7 @@ async function saveContractConfig(contractId, config) {
 async function addPunishment(contractId, punishment) {
     try {
         console.log("Loading");
-        const response = await fetch(BaseURL + "punishment", {
+        const response = await fetch(endpoint + "punishment", {
             method: "PUT",
             headers: {
                 'Content-Type': 'application/json'
@@ -124,7 +122,7 @@ async function addPunishment(contractId, punishment) {
 async function removePunishment(contractId, punishment) {
     try {
         console.log("Loading");
-        const response = await fetch(BaseURL + "punishment", {
+        const response = await fetch(endpoint + "punishment", {
             method: "DELETE",
             headers: {
                 'Content-Type': 'application/json'
@@ -147,7 +145,7 @@ async function removePunishment(contractId, punishment) {
 }
 
 async function saveTask(contractId, task) {
-    const response = await fetch(BaseURL + "task", {
+    const response = await fetch(endpoint + "task", {
         method: "PUT",
         headers: {
             'Content-Type': 'application/json'
@@ -163,7 +161,7 @@ async function saveTask(contractId, task) {
 }
 
 async function createTask(contractId, task) {
-    const response = await fetch(BaseURL + "task", {
+    const response = await fetch(endpoint + "task", {
         method: "POST",
         headers: {
             'Content-Type': 'application/json'
@@ -179,7 +177,7 @@ async function createTask(contractId, task) {
 }
 
 async function deleteTask(contractId, task) {
-    const response = await fetch(BaseURL + "task", {
+    const response = await fetch(endpoint + "task", {
         method: "DELETE",
         headers: {
             'Content-Type': 'application/json'
@@ -195,7 +193,7 @@ async function deleteTask(contractId, task) {
 }
 
 async function startTask(contractId, task) {
-    const response = await fetch(BaseURL + "task/start", {
+    const response = await fetch(endpoint + "task/start", {
         method: "POST",
         headers: {
             'Content-Type': 'application/json'
@@ -211,7 +209,7 @@ async function startTask(contractId, task) {
 }
 
 async function performTask(contractId, task) {
-    const response = await fetch(BaseURL + "task/perform", {
+    const response = await fetch(endpoint + "task/perform", {
         method: "POST",
         headers: {
             'Content-Type': 'application/json'
@@ -227,7 +225,7 @@ async function performTask(contractId, task) {
 }
 
 async function stopTask(contractId, task) {
-    const response = await fetch(BaseURL + "task/stop", {
+    const response = await fetch(endpoint + "task/stop", {
         method: "POST",
         headers: {
             'Content-Type': 'application/json'

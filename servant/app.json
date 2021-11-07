@@ -1,4 +1,5 @@
 {
   "name": "servant",
-  "displayName": "servant"
+  "displayName": "servant",
+  "endpoint": "https://api.servantapp.dev/"
 }
